@@ -11,6 +11,7 @@
 #include <list>
 #include <forward_list>
 #include <unordered_map>
+#include <initializer_list>
 #include <unordered_set>
 #include <deque>
 #include <queue>

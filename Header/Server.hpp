@@ -5,59 +5,32 @@
 //---------//
 #ifndef CXX_CHAT_SERVER_DEF_HPP
 #define CXX_CHAT_SERVER_DEF_HPP
-#include <iostream>
 #include <optional>
-#include "boost/beast/core.hpp"
-#include "boost/beast.hpp"
-#include "boost/beast/websocket.hpp"
-#include "boost/asio.hpp" 
+#include <string>
 #include "boost/asio/ip/tcp.hpp"
 #include "nlohmann/json.hpp"
 #include "Logger.hpp"
 #include "../Source/Utils.cpp"
-#include <memory>
+#include "../Source/MySQL_DB_Connect.cpp"
+#include "Header/Concurency.hpp"
 
 //-----------//
 namespace server_routing {
-	using HRoute = std::function<Session(std::shared_ptr<Session> this_)>;
+	using HRoute = std::function<void(std::shared_ptr<Session>)>;
 	//------------//
-	std::shared_ptr<std::unordered_map<std::string, HRoute>> Hroutes;
-	auto routes = std::make_shared({
-		{ "login" , handleLogin },
-		{ "users", handleUsers },
-		{ "passwords", handlePasswords },
-	});
-	/*void addRoute(const std::string& name, HRoute handler) {
-		Hroutes->insert({ name, handler });
-	}
-	void deleteRoute(const std::string& name) {
-		Hroutes->erase(name);
-	}*/
-
-	HRoute handleLogin(); 
-	HRoute handleUsers();
-	HRoute handlePasswords();
-	
-
-
+	const inline std::shared_ptr<std::unordered_map<std::string, HRoute>> hRoutes =
+		std::make_shared<std::unordered_map<std::string, HRoute>>(
+			std::initializer_list<std::pair<const std::string, HRoute>>{
+				{ "login", HRoute() },
+				{ "users",  HRoute() },
+				{ "passwords", HRoute() }
+			}
+		);
 }
 //------------// 
 namespace http_request_handle {
 	//---------------------//
-	inline std::string get_current_http_date() {
-		using namespace std::chrono;
-		auto now = system_clock::now();
-		std::time_t now_time = system_clock::to_time_t(now);
-		std::tm tm;
-#if defined(_WIN32) || defined(_WIN64)
-		gmtime_s(&tm, &now_time);
-#else
-		gmtime_r(&now_time, &tm);
-#endif
-		std::ostringstream oss;
-		oss << std::put_time(&tm, "%a, %d %b %Y %H:%M:%S GMT");
-		return oss.str();
-	}
+
 	//---------------------//
 	void http_GET_request_response(std::shared_ptr<Session> session_,
 								   const std::string& msg,
@@ -162,17 +135,18 @@ namespace http_request_handle {
 //internal Server namespace to isolate from potential errors 
 namespace i_Server {
 	//---------//
-
-	//---------//
 	class Server {
 	private:
-		//
+		//---------//
 		i_tcp::endpoint endpoint_data;
 		i_asio::io_context& lcontext;
 		//acceptor accepts connections 
 		i_tcp::acceptor lacceptor{ lcontext };
-
+		//---------//
 		std::set<std::shared_ptr<Session>> session;
+		//---------//
+		// An instant of the DB 
+		//std::shared_ptr<MySQL_DB_Connect::mysql_connect> db;
 
 		bool lisActive = false;
 		uint32_t id_counter{ 0 }; 
@@ -206,6 +180,20 @@ namespace i_Server {
 			lacceptor.bind(uendpoint);
 			lacceptor.listen();
 		}
+		//------------------//
+		//Server(i_asio::io_context& ucontext, const i_tcp::endpoint& uendpoint, std::shared_ptr<MySQL_DB_Connect::mysql_connect> ndb)
+		//	: lcontext(ucontext), lacceptor(lcontext), endpoint_data(uendpoint), db(std::move(ndb))
+		//{
+		//	uint32_t id{ 0 }; 
+		//	auto current_session = std::make_shared<Session>(id , lcontext);
+		//	id_counter++;
+		//	session.insert(current_session);
+		//	lacceptor.open(uendpoint.protocol());
+		//	//this sets the option to reuse the address
+		//	lacceptor.set_option(i_asio::socket_base::reuse_address(true));
+		//	lacceptor.bind(uendpoint);
+		//	lacceptor.listen();
+		//}
 		//---------//
 		void Server_run() ;
 		void Server_AsyncAcceptConnection();
