@@ -14,7 +14,7 @@ namespace MySQL_DB_Connect {
 
 	struct mysql_connect {
 		//global io context for managing connections 
-		asio::io_context& ctx;
+		asio::io_context* ctx;
 		mysql::connect_params params;
 		//represents the connection to the mysql sinstance 
 		mysql::any_connection connect;
@@ -23,7 +23,7 @@ namespace MySQL_DB_Connect {
 
 		mysql_connect(asio::io_context& m_ctx, const std::string& hostname, const short& port,
 			const std::string& username, const std::string& password)
-			: ctx(m_ctx), connect(ctx) {
+			: ctx(&m_ctx), connect(*ctx) {
 
 			// conncetion parameters 
 			params.server_address.emplace_host_and_port(hostname, port);
@@ -31,44 +31,59 @@ namespace MySQL_DB_Connect {
 			params.password = password;
 			//connect to the database
 			connect.connect(params);
+			std::cout << "The connection established!" << std::endl; 
 		}
-		mysql_connect(const mysql_connect& x) = default;
-		mysql_connect(mysql_connect&& x) = default;
+
+		mysql_connect(const mysql_connect&) = delete;
+		mysql_connect& operator=(const mysql_connect&) = delete;
+
+		mysql_connect(mysql_connect&&) = delete;
+		mysql_connect& operator=(mysql_connect&&) = delete;
+
 		~mysql_connect() {
-			connect.close();
+			try {
+				connect.close();
+			} 
+			catch (boost::mysql::error_code& errc) {
+				std::cerr << "Caught an exception when releasing the resources!" << std::endl;
+				throw;
+			}
 		}
-		mysql::results SQL_query_exec_res(const std::string& query, mysql_connect& db);
 	};
-}
+	mysql::results SQL_query_exec_res(const std::string& query, mysql_connect& db);
+} // neamespace end 
 
 namespace DB_worker {
 
-	using std::function;
-
 	struct dbtask {
 		std::string dbquery{ };
-		std::promise<mysql::results> dbtaskresult;
+		std::shared_ptr<std::promise<mysql::results>> dbtaskresult;
 	};
 
 	class dbworker {
 	private:
 		mutable std::mutex mtx;
 		std::condition_variable cvar;
-		std::thread th;
+		std::jthread th;
 		std::queue<dbtask> jobs;
-		MySQL_DB_Connect::mysql_connect connection;
+		std::unique_ptr<MySQL_DB_Connect::mysql_connect> connection;
 		//shutdown variable 
 		bool closed{ false };
 
 		void db_worker_process_loop();
 
 	public:
-		dbworker(MySQL_DB_Connect::mysql_connect& n_connection)
-			: connection(std::move(n_connection)) {
+		dbworker(asio::io_context& m_ctx,
+			const std::string& hostname, 
+			const short& port,
+			const std::string& username, 
+			const std::string& password)
+			: connection(std::make_unique<MySQL_DB_Connect::mysql_connect>
+				(m_ctx , hostname , port , username , password)) {
 			// passing the reference to the current object which the thread is running 
-			th = std::thread(&dbworker::db_worker_process_loop, this);
+			th = std::jthread(&dbworker::db_worker_process_loop, this);
 		};
-		dbworker() = default;
+		dbworker() = delete;
 		~dbworker() {
 			{
 				// using type deduction so we dont write <std::mutex>
@@ -89,7 +104,8 @@ namespace DB_worker {
 		dbworker& operator=(const dbworker&) = delete;
 		dbworker& operator=(dbworker&&) = delete;
 
-		std::future<mysql::results> dbworker_addjobs(std::string& query);
+		// passing the query by value 
+		std::future<mysql::results> dbworker_addjobs(std::string query);
 		std::string_view db_get_last_error() const;
 	};
 

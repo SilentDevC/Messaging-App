@@ -41,16 +41,13 @@ namespace i_Server {
     class Server {
     private:
         //---------//
-        i_tcp::endpoint endpoint_data;                      // was i_tcp::tcp::endpoint
+        i_tcp::endpoint endpoint_data;
         i_asio::io_context& lcontext;
-        //acceptor accepts connections 
-        i_tcp::acceptor lacceptor{ lcontext };              // was i_tcp::tcp::acceptor
-
+        //acceptor accepts connections
+        i_tcp::acceptor lacceptor{ lcontext };
         //---------//
         std::set<std::shared_ptr<Session>> session;
         //---------//
-        // An instance of the DB 
-        std::shared_ptr<MySQL_DB_Connect::mysql_connect> db;
 
         bool lisActive = false;
         uint32_t id_counter{ 0 }; 
@@ -85,19 +82,7 @@ namespace i_Server {
             lacceptor.listen();
         }
         //------------------//
-        Server(i_asio::io_context& ucontext, const i_tcp::endpoint& uendpoint, std::shared_ptr<MySQL_DB_Connect::mysql_connect> ndb)
-            : lcontext(ucontext), lacceptor(lcontext), endpoint_data(uendpoint), db(std::move(ndb))
-        {
-            uint32_t id{ 0 }; 
-            auto current_session = std::make_shared<Session>(id , lcontext);
-            id_counter++;
-            session.insert(current_session);
-            lacceptor.open(uendpoint.protocol());
-            //this sets the option to reuse the address
-            lacceptor.set_option(i_asio::socket_base::reuse_address(true));
-            lacceptor.bind(uendpoint);
-            lacceptor.listen();
-        }
+        // 
         //---------//
         void Server_run() ;
         void Server_AsyncAcceptConnection();

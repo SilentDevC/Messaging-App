@@ -4,8 +4,11 @@
 #include <iostream>
 #include "../Header/DataStructures.hpp"
 #include "../Header/MYSQL_DB_connect.hpp"
+
+//---------//
 namespace mysql = boost::mysql;
 namespace asio = boost::asio;
+//---------//
 
 namespace MySQL_DB_Connect {
 
@@ -13,8 +16,7 @@ namespace MySQL_DB_Connect {
 		try {
 			mysql::results res;  
 			db.connect.execute(query, res);
-			if (!res.empty()) return res;
-			else return mysql::results();
+			return res;
 		}
 		catch (const std::exception& exc) {
 			std::cerr << "The exception has been caught during query exec : " << exc.what() << std::endl;
@@ -40,31 +42,43 @@ namespace DB_worker {
 			try {
 				// if there is a job execute it 
 				if (!job.dbquery.empty()) {
-					auto res = MySQL_DB_Connect::SQL_query_exec_res(job.dbquery, connection);
+					auto res = MySQL_DB_Connect::SQL_query_exec_res(job.dbquery, *connection);
 					std::cout << "Query succesfully executed : " << job.dbquery << " :" << std::endl;
-					job.dbtaskresult.set_value(res);
+					job.dbtaskresult->set_value(res);
+				}
+				else if (job.dbtaskresult) {
+					job.dbtaskresult->set_value(mysql::results());
 				}
 			}
-			catch (const std::exception& exc) {
-				std::cerr << "Exception has been caught during DB workers runtime :" << exc.what() << std::endl;
-				std::cerr << "The job hasnt been processed properly" << std::endl;
-			}
-			catch (boost::system::error_code& errc) {
-				std::cerr << "Exception of the Boost Library has been caught during DB workers runtime :"
-					<< errc.message() << std::endl;
-				std::cerr << "The job hasnt been processed properly" << std::endl;
+			catch (...) {
+				if (job.dbtaskresult) {
+					job.dbtaskresult->set_exception(std::current_exception());
+				}
+				try {
+					std::rethrow_exception(std::current_exception());
+				}
+				catch (const std::exception& exc) {
+					std::cerr << "Exception has been caught during DB workers runtime :" << exc.what() << std::endl;
+					std::cerr << "The job hasnt been processed properly" << std::endl;
+				}
+				catch (const boost::system::error_code& errc) {
+					std::cerr << "Exception of the Boost Library has been caught during DB workers runtime :"
+						<< errc.message() << std::endl;
+					std::cerr << "The job hasnt been processed properly" << std::endl;
+				}
 			}
 		}
 	}
 	// add new jobs into the job pool 
-	std::future<mysql::results> dbworker::dbworker_addjobs(std::string& query) {
+	std::future<mysql::results> dbworker::dbworker_addjobs(std::string query) {
 		try {
 			std::promise<mysql::results> prom; 
 			auto future = prom.get_future();
 			{
 				std::scoped_lock lock(mtx);
 				// cerating dbtask object and pushing it into the jobs 
-				jobs.push(dbtask{ std::move(query), std::move(prom) });
+				// using emplace to build the dbtask object directly in the container 
+				jobs.emplace(std::move(query), std::make_shared<std::promise<mysql::results>>(prom));
 			}
 			cvar.notify_one();
 			return future;

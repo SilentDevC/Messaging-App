@@ -21,11 +21,11 @@ int main(int16_t argc , char **argv)
 
 		asio::io_context ctx; 
 
-		MySQL_DB_Connect::mysql_connect connect(ctx, "localhost", 3306, "root", "admin");
-		DB_worker::dbworker db_worker(connect);
+		DB_worker::dbworker worker(ctx, "localhost", 3306, "root", "admin");
+		
 
 		std::string query = "SELECT * FROM USERS";
-		auto res_future = db_worker.dbworker_addjobs(query);
+		auto res_future = worker.dbworker_addjobs(query);
 		
 	}
 	catch (const std::exception& exc) {
