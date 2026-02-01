@@ -20,18 +20,21 @@
     <ClInclude Include="Header\DataStructures.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Client.hpp">
+    <ClInclude Include="Header\Concurency.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Concurency.hpp">
+    <ClInclude Include="Header\MYSQL_DB_connect.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Utils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Client.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Utils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\DB_Connect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ChatServer-Application.cpp">
@@ -41,6 +44,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\MySQL_DB_Connect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Header\Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

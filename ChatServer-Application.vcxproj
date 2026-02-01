@@ -20,15 +20,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Client.hpp" />
+    <ClInclude Include="Header\Client.hpp" />
     <ClInclude Include="Header\Concurency.hpp" />
     <ClInclude Include="Header\DataStructures.hpp" />
     <ClInclude Include="Header\Logger.hpp" />
+    <ClInclude Include="Header\MYSQL_DB_connect.hpp" />
     <ClInclude Include="Header\Server.hpp" />
+    <ClInclude Include="Header\Utils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ChatServer-Application.cpp" />
-    <ClCompile Include="Source\DB_Connect.cpp" />
+    <ClCompile Include="Header\Server.cpp" />
     <ClCompile Include="Source\MySQL_DB_Connect.cpp" />
     <ClCompile Include="Source\Route_functions.cpp" />
     <ClCompile Include="Source\Utils.cpp" />

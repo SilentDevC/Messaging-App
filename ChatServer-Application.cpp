@@ -1,10 +1,7 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 // ChatServer-Application.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
 #include <iostream>
-#include "boost/beast/core.hpp"
-#include "boost/beast.hpp"
 #include "boost/asio/ip/tcp.hpp"
 #include "Header/Server.hpp"
 
@@ -24,11 +21,11 @@ int main(int16_t argc , char **argv)
 
 		asio::io_context ctx; 
 
-		/*MySQL_DB_Connect::mysql_connect connect(ctx, "localhost", 3306, "root", "admin");
+		MySQL_DB_Connect::mysql_connect connect(ctx, "localhost", 3306, "root", "admin");
 		DB_worker::dbworker db_worker(connect);
 
 		std::string query = "SELECT * FROM USERS";
-		auto res_future = db_worker.dbworker_addjobs(query);*/
+		auto res_future = db_worker.dbworker_addjobs(query);
 		
 	}
 	catch (const std::exception& exc) {

@@ -54,8 +54,8 @@ public:
 };  
 
 template <typename _Ty = std::string>  
-void WriteToTheConsole(const gConsoleType& e_constype , _Ty e_str) {  
-	if (std::is_same_v< decltype(e_str), std::string >) {  
+inline void WriteToTheConsole(const gConsoleType& e_constype , _Ty e_str) {  
+	if (std::is_same_v<decltype(e_str), std::string >) {  
 		switch (e_constype) {  
 		case gConsoleType::Buffered :   
 			std::cout << e_str << std::endl;  
@@ -73,7 +73,7 @@ void WriteToTheConsole(const gConsoleType& e_constype , _Ty e_str) {
 	}  
 }  
 // auto file write operation  
-void WriteLogToTheFile(const std::filesystem::path& e_file_path, std::string_view& e_msg ,const uint8_t& wcode) {  
+inline void WriteLogToTheFile(const std::filesystem::path& e_file_path, std::string_view& e_msg ,const uint8_t& wcode) {  
 	namespace chrono = std::chrono;  
 	try {  
 		std::ofstream file{ e_file_path , std::ios_base::app };  

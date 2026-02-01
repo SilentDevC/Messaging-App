@@ -5,58 +5,31 @@
 #include "boost/beast/websocket.hpp"
 #include "boost/asio.hpp" 
 #include "boost/asio/ip/tcp.hpp"
-#include "nlohmann/json.hpp"
+#include "../Header/Utils.hpp"
 
-namespace i_asio = boost::asio;
-namespace i_beast = boost::beast;
-namespace i_http = i_beast::http;
-namespace i_system = boost::system;
-using i_tcp = i_asio::ip::tcp;
+namespace utils {
 
-struct Session {
-	uint32_t id{ };
-	i_beast::flat_buffer lmembuff{};
-	i_tcp::socket socket;
-	i_http::request<i_http::string_body> request;
-	i_http::response<i_http::string_body> response;
-
-	Session() = default;
-
-	explicit Session(i_asio::io_context& ctx)
-		: socket(ctx) {
-	};
-
-	explicit Session(uint32_t uid, i_asio::io_context& ctx)
-		: id(uid), socket(ctx) {
-	};
-
-	void change_id(const uint32_t& uid) { id = uid; } 
-
-	bool operator <(const Session& other) const {
-		return this->id < other.id; 
+	inline void read_result(boost::beast::flat_buffer& buf) {
+		if (buf.size() == 0) {
+			std::cerr << "There is no data read !" << std::endl;
+		}
+		if (buf.size() != 0) {
+			std::cerr << "The data has been read : " << boost::beast::make_printable(buf.data()) << std::endl;
+		}
 	}
-};
 
-inline void read_result(boost::beast::flat_buffer& buf) {
-	if (buf.size() == 0) {
-		std::cerr << "There is no data read !" << std::endl;
-	}
-	if (buf.size() != 0) {
-		std::cerr << "The data has been read : " << boost::beast::make_printable(buf.data()) << std::endl;
-	}
-}
-
-inline std::string get_current_http_date() {
-	using namespace std::chrono;
-	auto now = system_clock::now();
-	std::time_t now_time = system_clock::to_time_t(now);
-	std::tm tm;
+	std::string get_current_http_date() {
+		using namespace std::chrono;
+		auto now = system_clock::now();
+		std::time_t now_time = system_clock::to_time_t(now);
+		std::tm tm;
 #if defined(_WIN32) || defined(_WIN64)
-	gmtime_s(&tm, &now_time);
+		gmtime_s(&tm, &now_time);
 #else
-	gmtime_r(&now_time, &tm);
+		gmtime_r(&now_time, &tm);
 #endif
-	std::ostringstream oss;
-	oss << std::put_time(&tm, "%a, %d %b %Y %H:%M:%S GMT");
-	return oss.str();
+		std::ostringstream oss;
+		oss << std::put_time(&tm, "%a, %d %b %Y %H:%M:%S GMT");
+		return oss.str();
+	}
 }
