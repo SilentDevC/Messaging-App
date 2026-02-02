@@ -26,11 +26,11 @@ static const bool gErrorMayOccurBit = false;
 
 //may want to remove statics  
 //error types   
-static enum class gLogLevel { None = 0x200, Notification = 0x201, Warning = 0x202, Error = 0x203 };  
+enum class gLogLevel { None = 0x200, Notification = 0x201, Warning = 0x202, Error = 0x203 };  
 //target types   
-static enum class gTargetOut { Console, UI };  
+enum class gTargetOut { Console, UI };  
 //console types   
-static enum class gConsoleType { Buffered, Unbuffered };  
+enum class gConsoleType { Buffered, Unbuffered };  
 //Log class which will redirect the output to the proper source   
 class Logger {  
 private:  
@@ -42,11 +42,11 @@ public:
 	Logger() = default;
 	//e_input = external input function which can be UI's writetext() function for example  
 	//u_msg = user message   
-	static void WriteToTheOutput(const std::function<void(std::string&)>& e_input ,std::string& u_msg , gTargetOut u_targ ) {  
+	void WriteToTheOutput(const std::function<void(std::string&)>& e_input ,std::string& u_msg , gTargetOut u_targ ) {  
 		e_input(std::ref(u_msg));  
 	}  
 
-	static void WriteToTheOutput(const std::function<void(const gConsoleType& , std::string&)>& e_input ,std::string& u_msg , gTargetOut u_targ , gConsoleType u_constype ) {  
+	void WriteToTheOutput(const std::function<void(const gConsoleType& , std::string&)>& e_input ,std::string& u_msg , gTargetOut u_targ , gConsoleType u_constype ) {  
 		if (u_targ == gTargetOut::Console) {  
 			e_input(u_constype, u_msg);  
 		}  

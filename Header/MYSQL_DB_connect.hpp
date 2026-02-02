@@ -30,8 +30,15 @@ namespace MySQL_DB_Connect {
 			params.username = username;
 			params.password = password;
 			//connect to the database
-			connect.connect(params);
-			std::cout << "The connection established!" << std::endl; 
+			try {
+				connect.connect(params);
+				std::cout << "The connection established!" << std::endl;
+			}
+			catch (const boost::mysql::error_with_diagnostics& err) {
+				std::cerr << "Connection failed: " << err.what() << std::endl;
+				std::cerr << "Server diagnostics: " << err.get_diagnostics().server_message() << std::endl;
+				throw;
+			}
 		}
 
 		mysql_connect(const mysql_connect&) = delete;
@@ -46,7 +53,7 @@ namespace MySQL_DB_Connect {
 			} 
 			catch (boost::mysql::error_code& errc) {
 				std::cerr << "Caught an exception when releasing the resources!" << std::endl;
-				throw;
+				std::cerr << "With message : " << errc.message() << std::endl;
 			}
 		}
 	};
@@ -110,5 +117,4 @@ namespace DB_worker {
 	};
 
 }
-
 #endif

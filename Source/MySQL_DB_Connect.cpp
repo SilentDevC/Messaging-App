@@ -43,11 +43,13 @@ namespace DB_worker {
 				// if there is a job execute it 
 				if (!job.dbquery.empty()) {
 					auto res = MySQL_DB_Connect::SQL_query_exec_res(job.dbquery, *connection);
-					std::cout << "Query succesfully executed : " << job.dbquery << " :" << std::endl;
+					if (!res.empty()) {
+						std::cout << "Query succesfully executed : " << job.dbquery << " :" << std::endl;
+					}
+					else {
+						std::cout << "Query succesfully executed, result is empty!" << std::endl;
+					}
 					job.dbtaskresult->set_value(res);
-				}
-				else if (job.dbtaskresult) {
-					job.dbtaskresult->set_value(mysql::results());
 				}
 			}
 			catch (...) {
@@ -72,13 +74,14 @@ namespace DB_worker {
 	// add new jobs into the job pool 
 	std::future<mysql::results> dbworker::dbworker_addjobs(std::string query) {
 		try {
-			std::promise<mysql::results> prom; 
-			auto future = prom.get_future();
+			std::shared_ptr<std::promise<mysql::results>> prom; 
+			auto future = prom->get_future();
 			{
 				std::scoped_lock lock(mtx);
 				// cerating dbtask object and pushing it into the jobs 
 				// using emplace to build the dbtask object directly in the container 
-				jobs.emplace(std::move(query), std::make_shared<std::promise<mysql::results>>(prom));
+				//dbtask task{ std::move(query), std::move(prom) };
+				jobs.emplace( std::move(query), std::move(prom) );
 			}
 			cvar.notify_one();
 			return future;
