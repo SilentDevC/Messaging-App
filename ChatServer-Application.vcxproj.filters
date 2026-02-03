@@ -46,7 +46,7 @@
     <ClCompile Include="Source\MySQL_DB_Connect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Header\Server.cpp">
+    <ClCompile Include="Source\Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

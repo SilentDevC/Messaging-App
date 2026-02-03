@@ -26,10 +26,21 @@ int main(int16_t argc , char **argv)
 
 		DB_worker::dbworker worker(ctx, "localhost", 3306, "root", "admin");
 		
-
-		std::string query = "SELECT * FROM USERS";
+		std::string query = "SELECT * FROM users;";
 		auto res_future = worker.dbworker_addjobs(query);
-		std::cout << res_future.get().size() << std::endl;
+		auto res_column_name = worker.dbworker_addjobs("SHOW COLUMNS FROM users;");
+		
+		auto value = res_future.get().rows().at(0).as_vector();
+		auto column_names = res_column_name.get().rows().at(0).as_vector();
+
+		//std::cout << "--->" << value << "<-----" << std::endl;
+		for (auto& it : column_names) std::cout << it << ' ';
+		std::cout << std::endl;
+		for (const auto& it : value) {
+			std::cout << it << ' '; 
+		}
+		
+		return 0;
 	}
 	catch (const std::exception& exc) {
 		std::cerr << "The error has been caugth - " << exc.what() << std::endl;

@@ -3,8 +3,7 @@
 #include "boost/asio/ip/tcp.hpp"
 #include "nlohmann/json.hpp"
 #include "boost/beast/websocket.hpp"
-#include "Logger.hpp"
-// do NOT include .cpp files from headers/source files
+#include "../Header/Logger.hpp"
 #include "../Header/Utils.hpp"
 #include "../Header/Concurency.hpp"
 #include "../Header/Server.hpp"
@@ -21,7 +20,7 @@ namespace i_Server {
 					if (!ec) {
 						auto remote_end = session_->socket.remote_endpoint();
 						std::cout << "Accepted connection from "
-							<< remote_end.address().to_string()
+						 	<< remote_end.address().to_string()
 							<< ":" << remote_end.port() << std::endl;
 						this->id_counter++;
 						// Store the shared_ptr, not a copy/move of Session
@@ -54,7 +53,7 @@ namespace i_Server {
 			<< "Servers port : " << this->endpoint_data.port()
 			<< "ServerSocketisValid : " << option.value() << std::endl;
 	}
-	/*inline int Server::Server_Handle_HTTP_request_type(std::shared_ptr<Session> session__,
+	inline int Server::Server_Handle_HTTP_request_type(std::shared_ptr<Session> session__,
 		const std::string& msg,
 		const i_http::status& st) const {
 		using HRV = i_http::verb;
@@ -62,11 +61,16 @@ namespace i_Server {
 			const auto http_method = session__->request.method();
 			switch (http_method) {
 			case HRV::get:
-				http_request_handle::http_GET_request_response(session__, msg, st);
+				//	http_request_handle::http_GET_request_response(session__, msg, st);
+				break;
 			case HRV::post:
-				http_request_handle::http_POST_request_response(session__, msg, st);
+				//	http_request_handle::http_POST_request_response(session__, msg, st);
+				break;
 			case HRV::delete_:
-				http_request_handle::http_DELETE_request_response(session__, msg, st);
+				//	http_request_handle::http_DELETE_request_response(session__, msg, st);
+				break;
+			default :
+				break;
 			}
 			return 1;
 		}
@@ -78,7 +82,7 @@ namespace i_Server {
 			std::cerr << "The Boost_LIB :" << err.what() << " The code : " << err.code() << std::endl;
 			throw;
 		}
-	}*/
+	}
 	//----------////----------////----------////----------////----------////----------////----------//
 
 	//----------////----------////----------////----------////----------////----------//

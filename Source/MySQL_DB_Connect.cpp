@@ -49,7 +49,9 @@ namespace DB_worker {
 					else {
 						std::cout << "Query succesfully executed, result is empty!" << std::endl;
 					}
-					job.dbtaskresult->set_value(res);
+					if (job.dbtaskresult) {
+						job.dbtaskresult->set_value(std::move(res));
+					}
 				}
 			}
 			catch (...) {
@@ -74,7 +76,9 @@ namespace DB_worker {
 	// add new jobs into the job pool 
 	std::future<mysql::results> dbworker::dbworker_addjobs(std::string query) {
 		try {
-			std::shared_ptr<std::promise<mysql::results>> prom; 
+			//we initialize the prom like this to avoid garbage memoey which can be constructed if we use just
+			// the shared_ptr with no initialized value 
+			auto prom = std::make_shared<std::promise<mysql::results>>(); 
 			auto future = prom->get_future();
 			{
 				std::scoped_lock lock(mtx);

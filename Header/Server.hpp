@@ -14,13 +14,11 @@
 #include <unordered_map>
 #include <set>
 #include <initializer_list>
-
 #include "boost/asio/ip/tcp.hpp"
 #include "nlohmann/json.hpp"
 #include "Logger.hpp"
-#include "Utils.hpp"                // provides Session and i_* aliases
-#include "MYSQL_DB_Connect.hpp"
-
+#include "Utils.hpp"
+#include "MYSQL_DB_connect.hpp"
 //-----------//
 namespace server_routing {
     using HRoute = std::function<void(std::shared_ptr<Session>)>;
@@ -31,8 +29,7 @@ namespace server_routing {
                 { "login", HRoute() },
                 { "users",  HRoute() },
                 { "passwords", HRoute() }
-            }
-        );
+            });
 }
 //------------//
 //internal Server namespace to isolate from potential errors 

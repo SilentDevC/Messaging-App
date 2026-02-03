@@ -22,13 +22,14 @@ namespace MySQL_DB_Connect {
 		mysql_connect() = default;
 
 		mysql_connect(asio::io_context& m_ctx, const std::string& hostname, const short& port,
-			const std::string& username, const std::string& password)
+			const std::string& username, const std::string& password , const std::string& database = "users")
 			: ctx(&m_ctx), connect(*ctx) {
 
 			// conncetion parameters 
 			params.server_address.emplace_host_and_port(hostname, port);
 			params.username = username;
 			params.password = password;
+			params.database = database;
 			//connect to the database
 			try {
 				connect.connect(params);
@@ -84,9 +85,10 @@ namespace DB_worker {
 			const std::string& hostname, 
 			const short& port,
 			const std::string& username, 
-			const std::string& password)
+			const std::string& password,
+			const std::string& database = "users")
 			: connection(std::make_unique<MySQL_DB_Connect::mysql_connect>
-				(m_ctx , hostname , port , username , password)) {
+				(m_ctx , hostname , port , username , password , database)) {
 			// passing the reference to the current object which the thread is running 
 			th = std::jthread(&dbworker::db_worker_process_loop, this);
 		};

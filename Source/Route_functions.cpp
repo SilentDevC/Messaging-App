@@ -10,7 +10,6 @@
 #include "../Header/Utils.hpp"
 #include <memory>
 
-
 namespace LoginRouteHadler {
 
 	void GET_LoginRoutehandle(std::shared_ptr<Session> session_ , 
@@ -51,23 +50,14 @@ namespace LoginRouteHadler {
 		response.prepare_payload();
 		session_->response = response;
 		// Send the response to the client
-
-
-
-
-
-
-
-
-
 		boost::beast::http::async_write(session_->socket, session_->response,
 			[session_](boost::system::error_code ec, size_t bytes_transferred) {
 				if (ec) {
 					std::cerr << "The error has occured using boost : " << ec.message() << ", trasferred :: " << bytes_transferred << " bytes!" << std::endl;
 				}
 			});
-
 	}
+
 	void DELETE_LoginRouetHandle(std::shared_ptr<Session> session_,
 		const std::string_view& msg,
 		const i_http::status& stat = i_http::status::ok) {
@@ -93,6 +83,7 @@ namespace LoginRouteHadler {
 			});
 
 	}
+
 	void PATCH_LoginRouteHandle(std::shared_ptr<Session> session_,
 		const std::string& msg,
 		const i_http::status& stat = i_http::status::ok) {
@@ -116,7 +107,6 @@ namespace LoginRouteHadler {
 					std::cerr << "The error has occured using boost : " << ec.message() << ", trasferred :: " << bytes_transferred << " bytes!" << std::endl;
 				}
 			});
-
 	}
 }
 

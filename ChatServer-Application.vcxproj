@@ -30,9 +30,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ChatServer-Application.cpp" />
-    <ClCompile Include="Header\Server.cpp" />
     <ClCompile Include="Source\MySQL_DB_Connect.cpp" />
     <ClCompile Include="Source\Route_functions.cpp" />
+    <ClCompile Include="Source\Server.cpp" />
     <ClCompile Include="Source\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
