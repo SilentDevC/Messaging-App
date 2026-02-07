@@ -15,21 +15,60 @@
 #include <set>
 #include <initializer_list>
 #include "boost/asio/ip/tcp.hpp"
+#include "boost/json.hpp"
 #include "nlohmann/json.hpp"
+#include "Types.hpp"
+#include "types.h"
 #include "Logger.hpp"
 #include "Utils.hpp"
 #include "MYSQL_DB_connect.hpp"
 //-----------//
 namespace server_routing {
     using HRoute = std::function<void(std::shared_ptr<Session>)>;
+    namespace http = boost::beast::http;
+    
     //------------//
-    const inline std::shared_ptr<std::unordered_map<std::string, HRoute>> hRoutes =
+    const inline auto hRoutes =
         std::make_shared<std::unordered_map<std::string, HRoute>>(
             std::initializer_list<std::pair<const std::string, HRoute>>{
                 { "login", HRoute() },
                 { "users",  HRoute() },
                 { "passwords", HRoute() }
             });
+    //------------//
+    enum class server_op_codes : int {
+        create = 0,
+        destroy = 1,
+        update = 2
+    };
+    const inline auto routes = std::array<std::string, 3U> {
+        "login" ,
+        "users" ,
+        "passwords"
+    };
+    using opcodes = server_routing::server_op_codes;
+    //------------//
+    const inline auto user_opcode_handler = std::unordered_map<opcodes, HRoute>{
+            { opcodes::create,  HRoute() } , 
+            { opcodes::destroy,  HRoute() } , 
+            { opcodes::update,  HRoute() }
+    };
+    const inline auto login_opcode_handler = std::unordered_map<opcodes, HRoute>{
+            { opcodes::create,  HRoute() } , 
+            { opcodes::destroy,  HRoute() } , 
+            { opcodes::update,  HRoute() }
+    };
+    const inline auto passwords_opcode_handler = std::unordered_map<opcodes, HRoute>{
+            { opcodes::create,  HRoute() } , 
+            { opcodes::destroy,  HRoute() } , 
+            { opcodes::update,  HRoute() }
+    };
+    //------------//
+    void server_request_handler(std::shared_ptr<Session>);
+    HRoute handleLogin(); 
+    HRoute handleUsers();
+    HRoute handlePasswords();
+
 }
 //------------//
 //internal Server namespace to isolate from potential errors 
@@ -45,11 +84,10 @@ namespace i_Server {
         //---------//
         std::set<std::shared_ptr<Session>> session;
         //---------//
-
         bool lisActive = false;
         uint32_t id_counter{ 0 }; 
     private:
-        std::optional<bool> Server_isConnected(i_tcp::socket& lsocket) { // socket type fixed
+        std::optional<bool> Server_isConnected(i_tcp::socket& lsocket) { // socket type fixed // NOLINT 
             auto status = lsocket.is_open();
             if ( !status ) {
                 lisActive = true; 

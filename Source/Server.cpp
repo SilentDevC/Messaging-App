@@ -7,6 +7,14 @@
 #include "../Header/Utils.hpp"
 #include "../Header/Concurency.hpp"
 #include "../Header/Server.hpp"
+//---------//
+
+namespace user_data {
+	struct u_basic_data {
+		INT id{ 0 };
+		
+	};
+}
 
 //---------//
 namespace i_Server {
@@ -124,6 +132,34 @@ namespace i_Server {
 
 		std::cout << "Shutting down the server !" << std::endl;
 	}
+
+
+}
+
+namespace server_routing {
+	
+
+	template <typename _Ty>
+	inline int server_comp_opcodes(server_routing::server_op_codes& opcode, auto code = std::string{ _Ty }) {
+		if (!std::is_same_v<_Ty, std::string>) {
+			std::cerr << "Error during opcode translation" << std::endl;
+			return -1;
+		}
+
+	}
+
+	void server_request_handler(std::shared_ptr<Session> ptr) {
+		auto req_opcode = std::stoi(ptr->request["x_opcode"]);
+		auto target = ptr->request["target"];
+		if ( target == "/users" ) {
+			switch (req_opcode) {
+				case static_cast<int>(opcodes::create):
+
+
+				}
+		}
+	}
+	std::optional<bool> server_create_user()
 
 
 }

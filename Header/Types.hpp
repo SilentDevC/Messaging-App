@@ -1,0 +1,38 @@
+#ifndef CXX_SERVER_TYPES
+#define CXX_SERVER_TYPES
+
+#include "Server.hpp"
+
+//bolean types
+#define BOOL bool 
+
+//signed integer types
+#define MININT char 
+#define SHORTINT short 
+#define INT int
+#define LONGINT long 
+#define MAXINT long long 
+
+//unsigned integer types
+#define UMININT unsigned char 
+#define USHORTINT unsigned short 
+#define UINT unsigned int
+#define ULONGINT unsigned long 
+#define UMAXINT unsigned long long 
+
+// fixed size string types // mirroring the SQL 
+#define STRING32 const char[32]
+#define STRING64 const char[64]
+#define STRING128 const char[128]
+#define STRING256 const char[256]
+#define STRING512 const char[512]
+
+//long integer types 
+#define INT32 uint32_t 
+#define INT64 uint64_t
+#ifdef BOOST_MP_CPP_INT_HPP
+	#define INT128 uint128_t 
+#endif
+
+
+#endif //CXX_SERVER_TYPES

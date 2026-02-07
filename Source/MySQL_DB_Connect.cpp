@@ -12,6 +12,15 @@ namespace asio = boost::asio;
 
 namespace MySQL_DB_Connect {
 
+	void db_params_init(const db_params& params, mysql::connect_params& sql_params) {
+		sql_params.server_address.emplace_host_and_port(params.hostname, params.port);
+		sql_params.username = params.username;
+		sql_params.password = params.password;
+		sql_params.database = params.database;
+		sql_params.multi_queries = false;
+		sql_params.ssl = mysql::ssl_mode::disable;
+	}
+
 	mysql::results SQL_query_exec_res(const std::string& query , mysql_connect& db) {
 		try {
 			mysql::results res;  
@@ -23,12 +32,21 @@ namespace MySQL_DB_Connect {
 			throw;
 		}
 	}
+
+	void db_params::db_params_custom(short port, std::string hostname, std::string username, std::string password, std::string database) {
+		this->port = port;
+		this->hostname = std::move(hostname);
+		this->username = std::move(username);
+		this->password = std::move(password);
+		this->database = std::move(database);
+	}
 }
  
 namespace DB_worker {
 
 	void dbworker::db_worker_process_loop() {
 		while (true) {
+
 			dbtask job;
 			{
 				std::unique_lock ulk(mtx);

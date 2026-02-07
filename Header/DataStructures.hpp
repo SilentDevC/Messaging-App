@@ -2,7 +2,7 @@
 #define DATA_STRUCTURES_HPP
 
 // data-structures include header file for the simpler access
-
+#include <string>
 #include <vector>
 #include <array>
 #include <map>

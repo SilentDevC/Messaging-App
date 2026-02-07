@@ -26,6 +26,7 @@
     <ClInclude Include="Header\Logger.hpp" />
     <ClInclude Include="Header\MYSQL_DB_connect.hpp" />
     <ClInclude Include="Header\Server.hpp" />
+    <ClInclude Include="Header\Types.hpp" />
     <ClInclude Include="Header\Utils.hpp" />
   </ItemGroup>
   <ItemGroup>

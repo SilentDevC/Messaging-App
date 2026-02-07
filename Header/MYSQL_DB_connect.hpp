@@ -12,24 +12,55 @@ namespace asio = boost::asio;
 
 namespace MySQL_DB_Connect {
 
+	struct db_params {
+	public:
+		short port{ 3306 };
+		std::string hostname{ "localhost" };
+		std::string username{ "root" };
+		std::string password{ "admin" };
+		std::string database{ "users" };
+
+		void db_params_custom(short port,
+			std::string hostname,
+			std::string username,
+			std::string password,
+			std::string database);
+	};
+
+	void db_params_init(const db_params& params, mysql::connect_params& sql_params);
+
 	struct mysql_connect {
 		//global io context for managing connections 
 		asio::io_context* ctx;
 		mysql::connect_params params;
 		//represents the connection to the mysql sinstance 
 		mysql::any_connection connect;
+		db_params u_params;
 
 		mysql_connect() = default;
 
+		//cunstructor with custom params 
 		mysql_connect(asio::io_context& m_ctx, const std::string& hostname, const short& port,
 			const std::string& username, const std::string& password , const std::string& database = "users")
 			: ctx(&m_ctx), connect(*ctx) {
-
+			u_params.db_params_custom(port, hostname, username, password, database);
+			db_params_init(u_params, params);
+			//connect to the database
+			try {
+				connect.connect(params);
+				std::cout << "The connection established!" << std::endl;
+			}
+			catch (const boost::mysql::error_with_diagnostics& err) {
+				std::cerr << "Connection failed: " << err.what() << std::endl;
+				std::cerr << "Server diagnostics: " << err.get_diagnostics().server_message() << std::endl;
+				throw;
+			}
+		}
+		// constructor with default params 
+		mysql_connect(asio::io_context& m_ctx)
+			: ctx(&m_ctx), connect(*ctx) {
 			// conncetion parameters 
-			params.server_address.emplace_host_and_port(hostname, port);
-			params.username = username;
-			params.password = password;
-			params.database = database;
+			db_params_init(u_params, params);
 			//connect to the database
 			try {
 				connect.connect(params);
@@ -68,7 +99,7 @@ namespace DB_worker {
 		std::shared_ptr<std::promise<mysql::results>> dbtaskresult;
 	};
 
-	class dbworker {
+	class [[nodiscard("Do not ignore the return values of member functions of the dbworker class")]] dbworker {
 	private:
 		mutable std::mutex mtx;
 		std::condition_variable cvar;
