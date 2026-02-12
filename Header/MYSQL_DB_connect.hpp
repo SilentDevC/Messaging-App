@@ -36,7 +36,7 @@ namespace MySQL_DB_Connect {
 		//represents the connection to the mysql sinstance 
 		mysql::any_connection connect;
 		db_params u_params;
-
+		boost::mysql::format_options opts;
 		mysql_connect() = default;
 
 		//cunstructor with custom params 
@@ -49,6 +49,8 @@ namespace MySQL_DB_Connect {
 			try {
 				connect.connect(params);
 				std::cout << "The connection established!" << std::endl;
+				//format options needed to execute queries safely
+				opts = this->connect.format_opts().value();
 			}
 			catch (const boost::mysql::error_with_diagnostics& err) {
 				std::cerr << "Connection failed: " << err.what() << std::endl;
@@ -106,6 +108,7 @@ namespace DB_worker {
 		std::jthread th;
 		std::queue<dbtask> jobs;
 		std::unique_ptr<MySQL_DB_Connect::mysql_connect> connection;
+		boost::mysql::format_options opts;
 		//shutdown variable 
 		bool closed{ false };
 
@@ -121,9 +124,16 @@ namespace DB_worker {
 			: connection(std::make_unique<MySQL_DB_Connect::mysql_connect>
 				(m_ctx , hostname , port , username , password , database)) {
 			// passing the reference to the current object which the thread is running 
+			opts = connection.get()->opts;
 			th = std::jthread(&dbworker::db_worker_process_loop, this);
 		};
-		dbworker() = delete;
+
+		dbworker(asio::io_context& m_ctx)
+			: connection(std::make_unique<MySQL_DB_Connect::mysql_connect>(m_ctx)) {
+			opts = connection.get()->opts;
+			th = std::jthread(&dbworker::db_worker_process_loop, this);
+		};
+		
 		~dbworker() {
 			{
 				// using type deduction so we dont write <std::mutex>
@@ -138,6 +148,8 @@ namespace DB_worker {
 				th.join();
 			}
 		}
+
+		auto getoptions() const { return opts; }
 
 		dbworker(const dbworker& x) noexcept = delete;
 		dbworker(dbworker&& x) noexcept = delete;

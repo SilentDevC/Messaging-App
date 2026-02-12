@@ -74,6 +74,8 @@ namespace server_routing {
 //internal Server namespace to isolate from potential errors 
 namespace i_Server {
     //---------//
+    std::vector<std::pair<std::future<mysql::results> , std::string>> db_exec_results; 
+    //---------//
     class Server {
     private:
         //---------//
@@ -104,7 +106,7 @@ namespace i_Server {
         //---------//
         Server() = default;
         Server(i_asio::io_context& ucontext, const i_tcp::endpoint& uendpoint)
-            : lcontext(ucontext), lacceptor(lcontext) , endpoint_data(uendpoint)
+            : endpoint_data(uendpoint), lcontext(ucontext), lacceptor(lcontext)
         {
             uint32_t id{ 0 }; 
             auto current_session = std::make_shared<Session>(id , lcontext);

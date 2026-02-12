@@ -7,15 +7,29 @@
 #include "../Header/Utils.hpp"
 #include "../Header/Concurency.hpp"
 #include "../Header/Server.hpp"
+#include "../Header/MYSQL_DB_connect.hpp"
 //---------//
-
 namespace user_data {
 	struct u_basic_data {
 		INT id{ 0 };
-		
+		STRING256(username);
+		STRING256(hash);
+		u_basic_data()
+			: id (0) , username("") , hash("")
+		{
+		}
+	};
+
+	struct u_full_data : u_basic_data {
+		STRING256(email);
+		boost::mysql::date created_at;
+		BOOL is_active;
+		u_full_data()
+			:u_basic_data(), email(""), created_at(boost::mysql::date()), is_active(true) 
+		{
+		};
 	};
 }
-
 //---------//
 namespace i_Server {
 
@@ -62,25 +76,12 @@ namespace i_Server {
 			<< "ServerSocketisValid : " << option.value() << std::endl;
 	}
 	inline int Server::Server_Handle_HTTP_request_type(std::shared_ptr<Session> session__,
+		DB_worker::dbworker& worker,
 		const std::string& msg,
 		const i_http::status& st) const {
 		using HRV = i_http::verb;
 		try {
-			const auto http_method = session__->request.method();
-			switch (http_method) {
-			case HRV::get:
-				//	http_request_handle::http_GET_request_response(session__, msg, st);
-				break;
-			case HRV::post:
-				//	http_request_handle::http_POST_request_response(session__, msg, st);
-				break;
-			case HRV::delete_:
-				//	http_request_handle::http_DELETE_request_response(session__, msg, st);
-				break;
-			default :
-				break;
-			}
-			return 1;
+			server_routing::server_request_handler(session__, worker);
 		}
 		catch (const std::exception& exc) {
 			std::cerr << "The exception has been caught - " << exc.what() << std::endl;
@@ -135,9 +136,117 @@ namespace i_Server {
 
 
 }
+namespace sql_gen {
+	//proffesional constexpr definition instead of doing #define s(T) std::string(T)
+	template <typename T>
+	[[nodiscard]] constexpr std::string s(T&& t) {
+		return std::string(std::forward<T>(t));
+	}
+
+	std::string sql_user_create_query_gen(const user_data::u_full_data& data, boost::mysql::format_options opts) {
+		// No manual quotes (') or string conversions (s()) needed!
+		// The library handles types (bool, string, int) automatically.
+		return boost::mysql::format_sql(opts,
+			"INSERT INTO users (username, email, password_hash, created_at, is_active) "
+			"VALUES ({}, {}, {}, {}, {})",
+			data.username, data.email, data.hash, data.created_at, data.is_active
+		);
+	}
+
+	std::string sql_user_update_query_gen(const user_data::u_full_data& data, boost::mysql::format_options opts) {
+		// format_sql acts like std::format but specifically for SQL
+		// It automatically adds single quotes and escapes dangerous characters
+		return boost::mysql::format_sql(opts,
+			"UPDATE users SET email={}, password_hash={}, created_at={}, is_active={} WHERE username={}",
+			data.email,
+			data.hash,
+			data.created_at,
+			data.is_active,
+			data.username
+		);
+	}
+
+	std::string sql_user_destroy_query_gen(const user_data::u_full_data& data, boost::mysql::format_options opts) {
+		// format_sql automatically handles the single quotes around the username
+		return boost::mysql::format_sql(opts, "DELETE FROM users WHERE username = {}", data.username);
+	}
+}
+namespace sql_exec {
+	bool server_create_user(DB_worker::dbworker& worker, const user_data::u_full_data& data) {
+		try {
+			auto query = sql_gen::sql_user_create_query_gen(data, worker.getoptions());
+			auto query_res = worker.dbworker_addjobs(query);
+
+			if (!query_res.valid()) {
+				return false;
+			}
+			i_Server::db_exec_results.push_back({ std::move(query_res), query });
+			return true;
+		}
+		catch (const boost::system::system_error& e) {
+			if (e.code() == boost::mysql::common_server_errc::er_dup_entry) {
+				std::cerr << "User already exists: " << data.username << std::endl;
+			}
+			else {
+				std::cerr << "Database System Error: " << e.what() << std::endl;
+			}
+			return false;
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Standard Exception: " << e.what() << std::endl;
+			return false;
+		}
+	}
+
+	bool server_update_user(DB_worker::dbworker& worker, const user_data::u_full_data& data) {
+		try {
+			auto query = sql_gen::sql_user_update_query_gen(data, worker.getoptions());
+			auto query_res = worker.dbworker_addjobs(query);
+
+			if (!query_res.valid()) {
+				return false;
+			}
+			i_Server::db_exec_results.push_back({ std::move(query_res), query });
+			return true;
+		}
+		catch (const boost::system::system_error& e) {
+			std::cerr << "Database Error during Update: " << e.what() << std::endl;
+			return false;
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Standard Exception: " << e.what() << std::endl;
+			return false;
+		}
+	}
+
+	bool server_destroy_user(DB_worker::dbworker& worker, const user_data::u_full_data& data) {
+		try {
+			auto query = sql_gen::sql_user_destroy_query_gen(data, worker.getoptions());
+			auto query_res = worker.dbworker_addjobs(query);
+
+			if (!query_res.valid()) {
+				return false;
+			}
+			i_Server::db_exec_results.push_back({ std::move(query_res), query });
+			return true;
+		}
+		catch (const boost::system::system_error& e) {
+			std::cerr << "Database Error during Destroy: " << e.what() << std::endl;
+			return false;
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Standard Exception: " << e.what() << std::endl;
+			return false;
+		}
+	}
+}
 
 namespace server_routing {
-	
+
+
+	void parse_request_data(user_data::u_full_data& data, i_http::request<std::string>& req) {
+
+	}
 
 	template <typename _Ty>
 	inline int server_comp_opcodes(server_routing::server_op_codes& opcode, auto code = std::string{ _Ty }) {
@@ -148,18 +257,26 @@ namespace server_routing {
 
 	}
 
-	void server_request_handler(std::shared_ptr<Session> ptr) {
+	void server_request_handler(std::shared_ptr<Session> ptr , DB_worker::dbworker& worker) {
 		auto req_opcode = std::stoi(ptr->request["x_opcode"]);
 		auto target = ptr->request["target"];
+		user_data::u_full_data data;
 		if ( target == "/users" ) {
 			switch (req_opcode) {
 				case static_cast<int>(opcodes::create):
-
-
-				}
+					sql_exec::server_create_user(worker, data);
+					break;
+				case static_cast<int>(opcodes::update):
+					sql_exec::server_update_user(worker, data);
+					break;
+				case static_cast<int>(opcodes::destroy):
+					sql_exec::server_destroy_user(worker, data);
+					break;
+				default: 
+					std::cout << "This action is not supported!" << std::endl;
+					break;
+			}
 		}
 	}
-	std::optional<bool> server_create_user()
-
-
+	
 }

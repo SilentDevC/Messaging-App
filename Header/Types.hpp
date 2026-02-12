@@ -21,11 +21,12 @@
 #define UMAXINT unsigned long long 
 
 // fixed size string types // mirroring the SQL 
-#define STRING32 const char[32]
-#define STRING64 const char[64]
-#define STRING128 const char[128]
-#define STRING256 const char[256]
-#define STRING512 const char[512]
+#define STRING32(T) const char T[32]
+#define STRING64(T) const char T[64]
+#define STRING128(T) const char T[128]
+#define STRING256(T) const char T[256]
+#define STRING512(T) const char T[512]
+#define STRINGGEN const char*
 
 //long integer types 
 #define INT32 uint32_t 
