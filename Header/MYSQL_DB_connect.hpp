@@ -20,11 +20,13 @@ namespace MySQL_DB_Connect {
 		std::string password{ "admin" };
 		std::string database{ "users" };
 
-		void db_params_custom(short port,
+		void db_params_custom(
+			short port,
 			std::string hostname,
 			std::string username,
 			std::string password,
-			std::string database);
+			std::string database
+		);
 	};
 
 	void db_params_init(const db_params& params, mysql::connect_params& sql_params);

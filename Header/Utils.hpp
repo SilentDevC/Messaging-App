@@ -27,6 +27,12 @@ struct Session {
 namespace utils {
     inline void read_result(boost::beast::flat_buffer& buffer);
     std::string get_current_http_date();
-} 
+    template <typename _ty> auto copystrings(_ty string, std::string& str);
+    template<typename _ty>
+    auto copystrings(_ty string, std::string& str);
+    template<typename _ty>
+    auto copystrings(_ty string, std::string& str) {
+    }
+}
 
 #endif 

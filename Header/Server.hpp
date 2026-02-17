@@ -126,7 +126,7 @@ namespace i_Server {
         void Server_ReadClientData(std::shared_ptr<Session> session);
         bool Server_DataReadChuck(i_tcp::socket& socket, size_t chunk_size); // fixed signature
         void Server_get_the_config() const;
-        int Server_Handle_HTTP_request_type(std::shared_ptr<Session> session__, const std::string& msg, const i_http::status& st = i_http::status::ok) const;
+        int Server_Handle_HTTP_request_type(std::shared_ptr<Session> session__,DB_worker::dbworker& worker ,const std::string& msg, const i_http::status& st = i_http::status::ok) const;
     };
     //---------//
 } 

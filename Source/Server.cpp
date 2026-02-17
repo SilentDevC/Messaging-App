@@ -3,6 +3,7 @@
 #include "boost/asio/ip/tcp.hpp"
 #include "nlohmann/json.hpp"
 #include "boost/beast/websocket.hpp"
+#include "boost/json.hpp"
 #include "../Header/Logger.hpp"
 #include "../Header/Utils.hpp"
 #include "../Header/Concurency.hpp"
@@ -66,6 +67,7 @@ namespace i_Server {
 		}
 	}
 	//--------//
+	
 	//---------/////----------////----------////----------////----------////----------////----------//
 	inline void Server::Server_get_the_config() const {
 		boost::asio::ip::tcp::acceptor::reuse_address option;
@@ -242,10 +244,47 @@ namespace sql_exec {
 }
 
 namespace server_routing {
+	
+	namespace json = boost::json;
 
+	user_data::u_basic_data tag_invoke(json::value_to_tag<user_data::u_basic_data>, json::value const& jval) {
+		auto const& cref_obj = jval.get_object();
 
-	void parse_request_data(user_data::u_full_data& data, i_http::request<std::string>& req) {
+		user_data::u_basic_data base = json::value_to<user_data::u_basic_data>(jval);
 
+		user_data::u_basic_data bdata; 
+
+		bdata.id = jval.at("id").as_int64();
+		//auto username_std_string = static_cast<std::string>(jval.at("username").as_string());
+		//bdata.username = username_std_string.c_str();
+	}
+
+	
+
+	void parse_request_data(user_data::u_full_data& data, i_http::request<http::string_body>& req) {
+		try {
+			if (req[http::field::content_type].find("application/json") == std::string::npos) {
+				std::cerr << "The response is not a JSON" << std::endl;
+				return;
+			}
+			boost::system::error_code error;
+			json::value jsonvalue = json::parse(req.body(), error);
+
+			if (error) {
+				std::cerr << "The parsing could not be done." << std::endl;
+			}
+			
+			if (jsonvalue.is_object()) {
+				auto const& obj = jsonvalue.get_object();
+
+			}
+
+		}
+		catch (boost::mysql::error_with_diagnostics& err) {
+			std::cerr << "Parse error , exception caught in data parser " << err.what() << " ,"
+				<< err.get_diagnostics().server_message() << std::endl;
+			return;
+		}
 	}
 
 	template <typename _Ty>
