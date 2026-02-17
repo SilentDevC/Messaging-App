@@ -33,11 +33,11 @@ int main(int16_t argc , char **argv)
 		auto value = res_future.get().rows().at(0).as_vector();
 		auto column_names = res_column_name.get().rows().at(0).as_vector();
 
-		//std::cout << "--->" << value << "<-----" << std::endl;
+		std::cout << "--->" << value.at(0) << "<-----" << std::endl;
 		for (auto& it : column_names) std::cout << it << ' ';
 		std::cout << std::endl;
 		for (const auto& it : value) {
-			std::cout << it << ' '; 
+			std::cout << it << ' ';
 		}
 		
 		return 0;

@@ -83,7 +83,7 @@ namespace i_Server {
 		const i_http::status& st) const {
 		using HRV = i_http::verb;
 		try {
-			server_routing::server_request_handler(session__, worker);
+	//		server_routing::server_request_handler(session__, worker);
 		}
 		catch (const std::exception& exc) {
 			std::cerr << "The exception has been caught - " << exc.what() << std::endl;
@@ -104,7 +104,7 @@ namespace i_Server {
 
 				if (!ec) {
 					//Server_handlehttpRequest(session_);
-					Server_Handle_HTTP_request_type(session_, "Hello there!");
+				//	Server_Handle_HTTP_request_type(session_, "Hello there!");
 
 					if (session_->request.keep_alive()) {
 						Server_ReadClientData(session_);
@@ -255,8 +255,8 @@ namespace server_routing {
 		user_data::u_basic_data bdata; 
 
 		bdata.id = jval.at("id").as_int64();
-		//auto username_std_string = static_cast<std::string>(jval.at("username").as_string());
-		//bdata.username = username_std_string.c_str();
+		utils::copystrings(bdata.username, jval.at("username").as_string());
+
 	}
 
 	

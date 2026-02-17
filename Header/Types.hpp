@@ -2,16 +2,15 @@
 #define CXX_SERVER_TYPES
 
 #include "Server.hpp"
-
-//bolean types
+	//bolean types
 #define BOOL bool 
 
 //signed integer types
-#define MININT char 
+#define SQLMININT char 
 #define SHORTINT short 
 #define INT int
 #define LONGINT long 
-#define MAXINT long long 
+#define SQLMAXINT long long 
 
 //unsigned integer types
 #define UMININT unsigned char 
@@ -40,8 +39,7 @@
 #define INT32 uint32_t 
 #define INT64 uint64_t
 #ifdef BOOST_MP_CPP_INT_HPP
-	#define INT128 uint128_t 
+#define INT128 uint128_t 
 #endif
-
 
 #endif //CXX_SERVER_TYPES

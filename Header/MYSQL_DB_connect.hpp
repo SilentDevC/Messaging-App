@@ -117,14 +117,17 @@ namespace DB_worker {
 		void db_worker_process_loop();
 
 	public:
-		dbworker(asio::io_context& m_ctx,
+		dbworker(
+			asio::io_context& m_ctx,
 			const std::string& hostname, 
 			const short& port,
 			const std::string& username, 
 			const std::string& password,
-			const std::string& database = "users")
-			: connection(std::make_unique<MySQL_DB_Connect::mysql_connect>
-				(m_ctx , hostname , port , username , password , database)) {
+			const std::string& database = "users"
+		): connection(
+			std::make_unique<MySQL_DB_Connect::mysql_connect>
+			(m_ctx , hostname , port , username , password , database)
+		) {
 			// passing the reference to the current object which the thread is running 
 			opts = connection.get()->opts;
 			th = std::jthread(&dbworker::db_worker_process_loop, this);
