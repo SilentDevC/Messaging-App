@@ -4,6 +4,7 @@
 #include <string>
 #include "boost/beast/core.hpp"
 #include "boost/beast/http.hpp"
+#include "boost/mysql.hpp"
 
 namespace i_asio = boost::asio;
 namespace i_beast = boost::beast;
@@ -27,19 +28,7 @@ struct Session {
 namespace utils {
     inline void read_result(boost::beast::flat_buffer& buffer);
     std::string get_current_http_date();
-    template<typename _ty , typename _str_like_ >
-    void copystrings(_ty& string, const _str_like_& str) {
-        if constexpr (std::is_array_v<_ty> && std::is_same_v<std::remove_all_extents_t(_ty) , char>) {
-            size_t buff_size = sizeof(_ty);
-            std::copy(string.begin(), string.begin() + buff_size, string);
-            //adding end of the string char 
-            string += "\0";
-        }
-        else {
-            std::cerr << "Can not copy strings:not an array of chars!" << std::endl;
-            return;
-        }
-    }
+    boost::mysql::date string_to_date(const std::string_view& str);
 }
 
 #endif 

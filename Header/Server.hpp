@@ -23,6 +23,28 @@
 #include "Utils.hpp"
 #include "MYSQL_DB_connect.hpp"
 //-----------//
+namespace user_data {
+    struct u_basic_data {
+        INT id{ 0 };
+        SQLSTRING(username);
+        SQLSTRING(hash);
+        u_basic_data()
+            : id(0), username(""), hash("")
+        {
+        }
+    };
+
+    struct u_full_data : u_basic_data {
+        SQLSTRING(email);
+        boost::mysql::date& created_at;
+        BOOL is_active;
+        u_full_data()
+            :u_basic_data(), email(""), created_at(boost::mysql::date()), is_active(true)
+        {
+        };
+    };
+}
+//----------------//
 namespace server_routing {
     using HRoute = std::function<void(std::shared_ptr<Session>)>;
     namespace http = boost::beast::http;

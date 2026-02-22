@@ -4,33 +4,14 @@
 #include "nlohmann/json.hpp"
 #include "boost/beast/websocket.hpp"
 #include "boost/json.hpp"
+#include "boost/date_time/posix_time/posix_time.hpp"
 #include "../Header/Logger.hpp"
 #include "../Header/Utils.hpp"
 #include "../Header/Concurency.hpp"
 #include "../Header/Server.hpp"
 #include "../Header/MYSQL_DB_connect.hpp"
 //---------//
-namespace user_data {
-	struct u_basic_data {
-		INT id{ 0 };
-		STRING256(username);
-		STRING256(hash);
-		u_basic_data()
-			: id (0) , username("") , hash("")
-		{
-		}
-	};
 
-	struct u_full_data : u_basic_data {
-		STRING256(email);
-		boost::mysql::date created_at;
-		BOOL is_active;
-		u_full_data()
-			:u_basic_data(), email(""), created_at(boost::mysql::date()), is_active(true) 
-		{
-		};
-	};
-}
 //---------//
 namespace i_Server {
 
@@ -248,17 +229,27 @@ namespace server_routing {
 	namespace json = boost::json;
 
 	user_data::u_basic_data tag_invoke(json::value_to_tag<user_data::u_basic_data>, json::value const& jval) {
-		auto const& cref_obj = jval.get_object();
-
-		user_data::u_basic_data base = json::value_to<user_data::u_basic_data>(jval);
-
+		auto const& cref_obj = jval.as_object();
 		user_data::u_basic_data bdata; 
 
-		bdata.id = jval.at("id").as_int64();
-		utils::copystrings(bdata.username, jval.at("username").as_string());
+		bdata.id = static_cast<int>(cref_obj.at("id").as_int64());
+		bdata.username = cref_obj.at("username").as_string();
+		bdata.hash = cref_obj.at("password_hash").as_string();
 
+		return bdata;
 	}
 
+	user_data::u_full_data tag_invoke(json::value_to_tag<user_data::u_full_data> , json::value const& jval) {
+		user_data::u_full_data full_data;
+
+		static_cast<user_data::u_basic_data&>(full_data) = json::value_to<user_data::u_basic_data>(jval);
+
+		auto const& obj = jval.as_object();
+		full_data.email = obj.at("email").as_string();
+		full_data.created_at = utils::string_to_date(obj.at("created_at").as_string());
+		full_data.is_active = obj.at("is_active").as_bool();
+		return full_data;
+	}
 	
 
 	void parse_request_data(user_data::u_full_data& data, i_http::request<http::string_body>& req) {

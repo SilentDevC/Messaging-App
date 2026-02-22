@@ -5,9 +5,19 @@
 #include "boost/beast/websocket.hpp"
 #include "boost/asio.hpp" 
 #include "boost/asio/ip/tcp.hpp"
+#include "boost/date_time/gregorian/gregorian.hpp"
 #include "../Header/Utils.hpp"
 
 namespace utils {
+
+	boost::mysql::date string_to_date(const std::string& str) {
+		boost::gregorian::date date_data = boost::gregorian::from_string(str);
+		return boost::mysql::date(
+			static_cast<uint16_t>(date_data.year()),
+			static_cast<uint8_t>(date_data.month()),
+			static_cast<uint8_t>(date_data.day())
+		);
+	}
 
 	inline void read_result(boost::beast::flat_buffer& buf) {
 		if (buf.size() == 0) {
