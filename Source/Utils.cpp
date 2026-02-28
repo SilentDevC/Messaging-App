@@ -10,15 +10,6 @@
 
 namespace utils {
 
-	boost::mysql::date string_to_date(const std::string& str) {
-		boost::gregorian::date date_data = boost::gregorian::from_string(str);
-		return boost::mysql::date(
-			static_cast<uint16_t>(date_data.year()),
-			static_cast<uint8_t>(date_data.month()),
-			static_cast<uint8_t>(date_data.day())
-		);
-	}
-
 	inline void read_result(boost::beast::flat_buffer& buf) {
 		if (buf.size() == 0) {
 			std::cerr << "There is no data read !" << std::endl;
@@ -41,5 +32,13 @@ namespace utils {
 		std::ostringstream oss;
 		oss << std::put_time(&tm, "%a, %d %b %Y %H:%M:%S GMT");
 		return oss.str();
+	}
+
+	boost::mysql::date string_to_date(const std::string& str) {
+		return boost::mysql::date(
+			static_cast<uint16_t>(boost::gregorian::from_string(str).year()),
+			static_cast<uint8_t>(boost::gregorian::from_string(str).month()),
+			static_cast<uint8_t>(boost::gregorian::from_string(str).day())
+		);
 	}
 }

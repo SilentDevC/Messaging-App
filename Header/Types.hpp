@@ -1,7 +1,6 @@
 #ifndef CXX_SERVER_TYPES
 #define CXX_SERVER_TYPES
 
-#include "Server.hpp"
 #include <string>
 	//bolean types
 #define BOOL bool 

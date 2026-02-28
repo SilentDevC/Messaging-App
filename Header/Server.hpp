@@ -16,9 +16,7 @@
 #include <initializer_list>
 #include "boost/asio/ip/tcp.hpp"
 #include "boost/json.hpp"
-#include "nlohmann/json.hpp"
 #include "Types.hpp"
-#include "types.h"
 #include "Logger.hpp"
 #include "Utils.hpp"
 #include "MYSQL_DB_connect.hpp"
@@ -36,13 +34,18 @@ namespace user_data {
 
     struct u_full_data : u_basic_data {
         SQLSTRING(email);
-        boost::mysql::date& created_at;
+        boost::mysql::date created_at;
         BOOL is_active;
         u_full_data()
             :u_basic_data(), email(""), created_at(boost::mysql::date()), is_active(true)
         {
         };
     };
+
+    namespace json = boost::json;
+
+    user_data::u_basic_data tag_invoke(json::value_to_tag<user_data::u_basic_data>, json::value const& jval);
+    user_data::u_full_data tag_invoke(json::value_to_tag<user_data::u_full_data>, json::value const& jval);
 }
 //----------------//
 namespace server_routing {
@@ -64,9 +67,9 @@ namespace server_routing {
         update = 2
     };
     const inline auto routes = std::array<std::string, 3U> {
-        "login" ,
-        "users" ,
-        "passwords"
+        "/login" ,
+        "/users" ,
+        "/passwords"
     };
     using opcodes = server_routing::server_op_codes;
     //------------//
@@ -86,7 +89,7 @@ namespace server_routing {
             { opcodes::update,  HRoute() }
     };
     //------------//
-    void server_request_handler(std::shared_ptr<Session>);
+    void server_request_handler(std::shared_ptr<Session>, DB_worker::dbworker& worker);
     HRoute handleLogin(); 
     HRoute handleUsers();
     HRoute handlePasswords();
@@ -96,7 +99,7 @@ namespace server_routing {
 //internal Server namespace to isolate from potential errors 
 namespace i_Server {
     //---------//
-    std::vector<std::pair<std::future<mysql::results> , std::string>> db_exec_results; 
+    inline std::vector<std::pair<std::future<mysql::results> , std::string>> db_exec_results; 
     //---------//
     class Server {
     private:
@@ -107,6 +110,7 @@ namespace i_Server {
         i_tcp::acceptor lacceptor{ lcontext };
         //---------//
         std::set<std::shared_ptr<Session>> session;
+        DB_worker::dbworker& worker_ref;
         //---------//
         bool lisActive = false;
         uint32_t id_counter{ 0 }; 
@@ -127,8 +131,8 @@ namespace i_Server {
     public:
         //---------//
         Server() = default;
-        Server(i_asio::io_context& ucontext, const i_tcp::endpoint& uendpoint)
-            : endpoint_data(uendpoint), lcontext(ucontext), lacceptor(lcontext)
+        Server(i_asio::io_context& ucontext, const i_tcp::endpoint& uendpoint , DB_worker::dbworker& worker)
+            : endpoint_data(uendpoint), lcontext(ucontext), lacceptor(lcontext) , worker_ref(worker)
         {
             uint32_t id{ 0 }; 
             auto current_session = std::make_shared<Session>(id , lcontext);
@@ -145,10 +149,10 @@ namespace i_Server {
         //---------//
         void Server_run() ;
         void Server_AsyncAcceptConnection();
-        void Server_ReadClientData(std::shared_ptr<Session> session);
+        void Server_ReadClientData(std::shared_ptr<Session> session , DB_worker::dbworker& worker);
         bool Server_DataReadChuck(i_tcp::socket& socket, size_t chunk_size); // fixed signature
         void Server_get_the_config() const;
-        int Server_Handle_HTTP_request_type(std::shared_ptr<Session> session__,DB_worker::dbworker& worker ,const std::string& msg, const i_http::status& st = i_http::status::ok) const;
+        int Server_Handle_HTTP_request_type(std::shared_ptr<Session> session__,DB_worker::dbworker& worker , i_http::status st = i_http::status::ok) const;
     };
     //---------//
 } 

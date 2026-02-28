@@ -12,34 +12,11 @@
 int main(int16_t argc , char **argv)
 {
 	try {
-		//i_asio::io_context ctx; 
-		//i_tcp::endpoint port = { i_asio::ip::make_address("127.0.0.1") , 8080};
-		//
-		////server.Server_get_the_config(); 
-
-		//i_Server::Server server(ctx, port , fin_db);
-
-		//server.Server_run();
-		//return 0;
-
-		asio::io_context ctx; 
-
+		i_asio::io_context ctx; 
+		i_tcp::endpoint port = { i_asio::ip::make_address("127.0.0.1") , 8080};
 		DB_worker::dbworker worker(ctx, "localhost", 3306, "root", "admin");
-		
-		std::string query = "SELECT * FROM users;";
-		auto res_future = worker.dbworker_addjobs(query);
-		auto res_column_name = worker.dbworker_addjobs("SHOW COLUMNS FROM users;");
-		
-		auto value = res_future.get().rows().at(0).as_vector();
-		auto column_names = res_column_name.get().rows().at(0).as_vector();
-
-		std::cout << "--->" << value.at(0) << "<-----" << std::endl;
-		for (auto& it : column_names) std::cout << it << ' ';
-		std::cout << std::endl;
-		for (const auto& it : value) {
-			std::cout << it << ' ';
-		}
-		
+		i_Server::Server server(ctx, port, worker);
+		server.Server_run();
 		return 0;
 	}
 	catch (const std::exception& exc) {

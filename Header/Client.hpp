@@ -8,7 +8,6 @@
 #include "boost/beast/websocket.hpp"
 #include "boost/asio.hpp" 
 #include "boost/asio/ip/tcp.hpp"
-#include "nlohmann/json.hpp"
 #include "Logger.hpp"
 
 class Client

@@ -28,7 +28,7 @@ struct Session {
 namespace utils {
     inline void read_result(boost::beast::flat_buffer& buffer);
     std::string get_current_http_date();
-    boost::mysql::date string_to_date(const std::string_view& str);
+    boost::mysql::date string_to_date(const std::string& str);
 }
 
 #endif 
