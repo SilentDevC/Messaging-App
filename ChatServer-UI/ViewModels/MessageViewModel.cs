@@ -8,6 +8,8 @@ namespace ChatServer_UI.ViewModels
 {
     public partial class MessageViewModel : ObservableObject
     {
+        public string MessageContent => _content;
+
         [ObservableProperty]
         private string _content = string.Empty;
 

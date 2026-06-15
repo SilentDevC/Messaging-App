@@ -22,8 +22,8 @@ namespace ChatServer_UI.ViewModels
     {
         public ObservableCollection<ConversationViewModel> Conversations { get; } =
         [
-            new ConversationViewModel { DisplayName = "Alice", LastMessagePreview = "Hey!" },
-        new ConversationViewModel { DisplayName = "Bob", LastMessagePreview = "See you later" },
+            new ConversationViewModel { DisplayName = "Alice", LastMessagePreview = string.Empty, LastMessageTime = DateTime.Now },
+            new ConversationViewModel { DisplayName = "Bob", LastMessagePreview = string.Empty, LastMessageTime = DateTime.Now},
     ];
 
         [ObservableProperty]
