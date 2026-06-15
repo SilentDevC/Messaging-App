@@ -1,16 +1,8 @@
 ﻿using ChatServer_UI.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace ChatServer_UI.Controls
 {
@@ -25,23 +17,26 @@ namespace ChatServer_UI.Controls
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (e.NewValue is ChatViewModel vm)
-                vm.Messages.CollectionChanged += (_, _) => ScrollToBottom();
+                vm.Messages.CollectionChanged += OnMessagesChanged;
+
+            if (e.OldValue is ChatViewModel oldVm)
+                oldVm.Messages.CollectionChanged -= OnMessagesChanged;
         }
 
-        private void ScrollToBottom()
+        private void OnMessagesChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            MessagesScroll.ScrollToEnd();
+            if (e.Action == NotifyCollectionChangedAction.Add)
+                MessagesScroll.ScrollToEnd();
         }
 
-        private void TextBox_KeyDown(object sender, KeyEventArgs e)
+        private void MessageInput_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter && !Keyboard.IsKeyDown(Key.LeftShift))
-            {
-                // trigger SendCommand
-                if (DataContext is ChatViewModel vm && vm.SendCommand.CanExecute(null))
-                    vm.SendCommand.Execute(null);
-                e.Handled = true;
-            }
+            if (e.Key != Key.Enter || Keyboard.IsKeyDown(Key.LeftShift)) return;
+
+            if (DataContext is ChatViewModel vm && vm.SendCommand.CanExecute(null))
+                vm.SendCommand.Execute(null);
+
+            e.Handled = true;
         }
     }
 }

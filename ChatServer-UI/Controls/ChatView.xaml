@@ -4,8 +4,59 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="clr-namespace:ChatServer_UI.ViewModels"
+             xmlns:controls="clr-namespace:ChatServer_UI.Controls"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <!-- Sent bubble — right aligned, blue -->
+        <DataTemplate x:Key="SentTemplate">
+            <Grid Margin="60 4 8 4">
+                <Border Background="#0078D4"
+                        CornerRadius="12 12 0 12"
+                        Padding="10 6"
+                        HorizontalAlignment="Right"
+                        MaxWidth="400">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Content}"
+                                   Foreground="White"
+                                   TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:HH:mm}'}"
+                                   Foreground="#AADEFF"
+                                   FontSize="10"
+                                   HorizontalAlignment="Right"
+                                   Margin="0 2 0 0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </DataTemplate>
+
+        <!-- Received bubble — left aligned, gray -->
+        <DataTemplate x:Key="ReceivedTemplate">
+            <Grid Margin="8 4 60 4">
+                <Border Background="#E9E9EB"
+                        CornerRadius="12 12 12 0"
+                        Padding="10 6"
+                        HorizontalAlignment="Left"
+                        MaxWidth="400">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Content}"
+                                   Foreground="#1A1A1A"
+                                   TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:HH:mm}'}"
+                                   Foreground="#888"
+                                   FontSize="10"
+                                   HorizontalAlignment="Left"
+                                   Margin="0 2 0 0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </DataTemplate>
+
+        <controls:MessageTemplateSelector x:Key="MessageSelector"
+            SentTemplate="{StaticResource SentTemplate}"
+            ReceivedTemplate="{StaticResource ReceivedTemplate}"/>
+    </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -15,34 +66,44 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" BorderThickness="0 0 0 1">
+        <Border Grid.Row="0" BorderThickness="0 0 0 1" BorderBrush="#E0E0E0" Background="White">
             <TextBlock Text="{Binding HeaderName}"
-                       VerticalAlignment="Center" Margin="16 0"/>
+                       VerticalAlignment="Center"
+                       Margin="16 0"
+                       FontSize="16"
+                       FontWeight="SemiBold"/>
         </Border>
 
         <!-- Messages -->
-        <ScrollViewer Grid.Row="1" x:Name="MessagesScroll">
-            <ItemsControl ItemsSource="{Binding Messages}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Content}" Margin="8 4"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+        <ScrollViewer Grid.Row="1" x:Name="MessagesScroll" Background="#F5F5F5">
+            <ItemsControl ItemsSource="{Binding Messages}"
+                          ItemTemplateSelector="{StaticResource MessageSelector}"/>
         </ScrollViewer>
 
         <!-- Input bar -->
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="2" Background="White">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <TextBox KeyDown="TextBox_KeyDown" Grid.Column="0"
+            <TextBox x:Name="MessageInput"
+                     Grid.Column="0"
                      Text="{Binding DraftMessage, UpdateSourceTrigger=PropertyChanged}"
-                     AcceptsReturn="False"/>
-            <Button Grid.Column="1" Content="Send"
-                    Command="{Binding SendCommand}"/>
+                     Padding="12 8"
+                     FontSize="14"
+                     BorderThickness="0"
+                     VerticalContentAlignment="Center"
+                     KeyDown="MessageInput_KeyDown"/>
+
+            <Button Grid.Column="1"
+                    Content="Send"
+                    Command="{Binding SendCommand}"
+                    Padding="16 8"
+                    Margin="4"
+                    Background="#0078D4"
+                    Foreground="White"
+                    BorderThickness="0"/>
         </Grid>
     </Grid>
 </UserControl>

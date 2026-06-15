@@ -44,6 +44,7 @@ namespace ChatServer_UI.ViewModels
 
             _currentConversation.Messages.Add(message);
             _currentConversation.LastMessagePreview = DraftMessage;
+            _currentConversation.LastMessageTime = DateTime.Now;
             Messages.Add(message);
             DraftMessage = string.Empty;
         }

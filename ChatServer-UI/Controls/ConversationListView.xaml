@@ -31,24 +31,57 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="48"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Avatar circle -->
-                        <Ellipse Grid.Column="0"
-                                 Width="42" Height="42"
-                                 VerticalAlignment="Center"/>
+                        <!-- Avatar with unread badge overlay -->
+                        <Grid Grid.Column="0" VerticalAlignment="Center">
+                            <Ellipse Width="42" Height="42" Fill="#CCCCCC"/>
+
+                            <!-- Unread badge — only visible when UnreadCount > 0 -->
+                            <Border Background="#FF3B30"
+                    CornerRadius="10"
+                    MinWidth="20" Height="20"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Padding="4 0">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding UnreadCount}" Value="0">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Text="{Binding UnreadCount}"
+                           Foreground="White"
+                           FontSize="11"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
 
                         <!-- Name + preview -->
-                        <StackPanel Grid.Column="1"
-                                    VerticalAlignment="Center"
-                                    Margin="10 0 0 0">
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10 0 0 0">
                             <TextBlock Text="{Binding DisplayName}"
-                                       FontWeight="SemiBold"
-                                       FontSize="14"/>
+                       FontWeight="SemiBold"
+                       FontSize="14"/>
                             <TextBlock Text="{Binding LastMessagePreview}"
-                                       Foreground="Gray"
-                                       FontSize="12"/>
+                       Foreground="Gray"
+                       FontSize="12"
+                       TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
+
+                        <!-- Timestamp -->
+                        <TextBlock Grid.Column="2"
+                   Text="{Binding LastMessageTime, StringFormat='{}{0:HH:mm}'}"
+                   Foreground="Gray"
+                   FontSize="11"
+                   VerticalAlignment="Top"
+                   Margin="0 8 4 0"/>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
