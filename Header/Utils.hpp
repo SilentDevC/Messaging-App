@@ -29,6 +29,7 @@ namespace utils {
     inline void read_result(boost::beast::flat_buffer& buffer);
     std::string get_current_http_date();
     boost::mysql::date string_to_date(const std::string& str);
+    void ansiprint_coloured_text(const std::string& str, int colour, bool newline = false);
 }
 
 #endif 

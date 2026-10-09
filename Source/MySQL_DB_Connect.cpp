@@ -62,10 +62,10 @@ namespace DB_worker {
 				if (!job.dbquery.empty()) {
 					auto res = MySQL_DB_Connect::SQL_query_exec_res(job.dbquery, *connection);
 					if (!res.empty()) {
-						std::cout << "Query succesfully executed : " << job.dbquery << " :" << std::endl;
+						utils::ansiprint_coloured_text("Query succesfully executed : " + job.dbquery, 42, true);
 					}
 					else {
-						std::cout << "Query succesfully executed, result is empty!" << std::endl;
+						utils::ansiprint_coloured_text("Query succesfully executed, result is empty!", 41, true);
 					}
 					if (job.dbtaskresult) {
 						job.dbtaskresult->set_value(std::move(res));
@@ -103,6 +103,7 @@ namespace DB_worker {
 				// cerating dbtask object and pushing it into the jobs 
 				// using emplace to build the dbtask object directly in the container 
 				//dbtask task{ std::move(query), std::move(prom) };
+				std::cout << "emplaced" << std::endl;
 				jobs.emplace( std::move(query), std::move(prom) );
 			}
 			cvar.notify_one();

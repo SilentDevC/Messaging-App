@@ -6,6 +6,7 @@
 #include <memory>
 #include <iostream>
 #include "../Header/DataStructures.hpp"
+#include "../Header/Utils.hpp"
 
 namespace mysql = boost::mysql;
 namespace asio = boost::asio;
@@ -55,8 +56,8 @@ namespace MySQL_DB_Connect {
 				opts = this->connect.format_opts().value();
 			}
 			catch (const boost::mysql::error_with_diagnostics& err) {
-				std::cerr << "Connection failed: " << err.what() << std::endl;
-				std::cerr << "Server diagnostics: " << err.get_diagnostics().server_message() << std::endl;
+				utils::ansiprint_coloured_text("Connection failed: " + *err.what(), 1, true);
+				utils::ansiprint_coloured_text("Server diagnostics: " + std::string(err.get_diagnostics().server_message()), 1, true);
 				throw;
 			}
 		}
@@ -71,8 +72,8 @@ namespace MySQL_DB_Connect {
 				std::cout << "The connection established!" << std::endl;
 			}
 			catch (const boost::mysql::error_with_diagnostics& err) {
-				std::cerr << "Connection failed: " << err.what() << std::endl;
-				std::cerr << "Server diagnostics: " << err.get_diagnostics().server_message() << std::endl;
+				utils::ansiprint_coloured_text("Connection failed: " + *err.what(), 1, true);
+				utils::ansiprint_coloured_text("Server diagnostics: " + std::string(err.get_diagnostics().server_message()), 1, true);
 				throw;
 			}
 		}
@@ -83,7 +84,7 @@ namespace MySQL_DB_Connect {
 		mysql_connect(mysql_connect&&) = delete;
 		mysql_connect& operator=(mysql_connect&&) = delete;
 
-		~mysql_connect() {
+		~mysql_connect()  {
 			try {
 				connect.close();
 			} 

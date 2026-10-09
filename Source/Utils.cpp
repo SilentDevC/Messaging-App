@@ -41,4 +41,9 @@ namespace utils {
 			static_cast<uint8_t>(boost::gregorian::from_string(str).day())
 		);
 	}
+
+	void ansiprint_coloured_text(const std::string& str, int colour, bool newline) {
+		std::cout << "\033[" << colour << ";0m" << str << "\033[m";
+		if (newline) std::cout << std::endl;
+	}
 }

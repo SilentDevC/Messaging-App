@@ -11,7 +11,7 @@
 #include "../Header/MYSQL_DB_connect.hpp"
 //---------//
 namespace sql_gen {
-	//proffesional constexpr definition instead of doing #define s(T) std::string(T)
+	//professional constexpr definition instead of doing #define s(T) std::string(T)
 	template <typename T>
 	[[nodiscard]] constexpr std::string s(T&& t) {
 		return std::string(std::forward<T>(t));
@@ -49,6 +49,7 @@ namespace sql_exec {
 	bool server_create_user(DB_worker::dbworker& worker, const user_data::u_full_data& data) {
 		try {
 			auto query = sql_gen::sql_user_create_query_gen(data, worker.getoptions());
+			std::cout << "JOB sent create" << std::endl;
 			auto query_res = worker.dbworker_addjobs(query);
 
 			if (!query_res.valid()) {
@@ -76,6 +77,7 @@ namespace sql_exec {
 	bool server_update_user(DB_worker::dbworker& worker, const user_data::u_full_data& data) {
 		try {
 			auto query = sql_gen::sql_user_update_query_gen(data, worker.getoptions());
+			std::cout << "JOB sent update" << std::endl;
 			auto query_res = worker.dbworker_addjobs(query);
 
 			if (!query_res.valid()) {
@@ -133,7 +135,7 @@ namespace server_routing {
 			}
 			boost::system::error_code error;
 			json::value jsonvalue = json::parse(req.body(), error);
-
+			utils::ansiprint_coloured_text("The parsing complete.", 2, true);
 			if (error) {
 				std::cerr << "The parsing could not be done." << std::endl;
 			}
@@ -164,15 +166,16 @@ namespace server_routing {
 	void server_request_handler(std::shared_ptr<Session> ptr, DB_worker::dbworker& worker) {
 		using method = i_http::verb;
 		//auto req_opcode = std::stoi(ptr->request["x_opcode"]);
-		auto target = ptr->request["target"];
+		auto target = ptr->request.target();
 		auto req_method = ptr->request.method();
 		user_data::u_full_data data;
 		parse_request_data(data, ptr->request);
-
+		std::cout << "Parse done, target: " << target << " method: " << req_method << std::endl;
 		// 0 - login , 1 - users , 2 - passwords 
 		if (target == routes[1]) {
 			switch (req_method) {
 			case (method::post):
+				std::cout << "Using create user!" << std::endl;
 				sql_exec::server_create_user(worker, data);
 				break;
 			case (method::put):
@@ -200,9 +203,9 @@ namespace i_Server {
 				[this, session_](boost::system::error_code ec) {
 					if (!ec) {
 						auto remote_end = session_->socket.remote_endpoint();
-						std::cout << "Accepted connection from "
-						 	<< remote_end.address().to_string()
-							<< ":" << remote_end.port() << std::endl;
+						utils::ansiprint_coloured_text( "Accepted connection from " +
+						 	remote_end.address().to_string() +
+							":" + std::to_string(remote_end.port()), 42, true);
 						this->id_counter++;
 						// Store the shared_ptr, not a copy/move of Session
 						this->session.insert(session_);
@@ -210,7 +213,7 @@ namespace i_Server {
 						Server_ReadClientData(session_ , worker_ref);
 					}
 					else {
-						std::cerr << "Could not accept a connection: " << ec.message() << std::endl;
+						utils::ansiprint_coloured_text("Could not accept a connection: " + ec.message(), 41, true);
 					}
 					Server_AsyncAcceptConnection();
 				});
@@ -306,8 +309,8 @@ namespace user_data {
 		user_data::u_basic_data bdata;
 
 		bdata.id = static_cast<int>(cref_obj.at("id").as_int64());
-		bdata.username = cref_obj.at("username").as_string();
-		bdata.hash = cref_obj.at("password_hash").as_string();
+		bdata.username = cref_obj.at("username").as_string().c_str();
+		bdata.hash = cref_obj.at("phash").as_string().c_str();
 
 		return bdata;
 	}
@@ -318,7 +321,7 @@ namespace user_data {
 		static_cast<user_data::u_basic_data&>(full_data) = json::value_to<user_data::u_basic_data>(jval);
 
 		auto const& obj = jval.as_object();
-		full_data.email = obj.at("email").as_string();
+		full_data.email = obj.at("email").as_string().c_str();
 		full_data.created_at = utils::string_to_date(obj.at("created_at").as_string().c_str());
 		full_data.is_active = obj.at("is_active").as_bool();
 		return full_data;

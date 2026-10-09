@@ -1,0 +1,29 @@
+cmake_minimum_required(VERSION 3.12)
+project(ChatServer-Application LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Header)
+find_package(Boost REQUIRED)
+
+# Add executable and list source files
+set(SOURCES
+    Source/MySQL_DB_Connect.cpp
+    Source/Route_functions.cpp
+    Source/Server.cpp
+    Source/Utils.cpp
+    ChatServer-Application.cpp
+)
+
+add_executable( ChatServer-Application ${SOURCES})
+
+# Link Boost headers and system thread library to the target
+target_link_libraries(ChatServer-Application PRIVATE Boost::boost)
+
+# Enable compiler warnings
+if(MSVC)
+    target_compile_options(ChatServer-Application PRIVATE /W4)
+else()
+    target_compile_options(ChatServer-Application PRIVATE -Wall -Wextra)
+endif()

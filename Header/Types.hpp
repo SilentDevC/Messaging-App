@@ -15,7 +15,7 @@
 //unsigned integer types
 #define UMININT unsigned char 
 #define USHORTINT unsigned short 
-#define UINT unsigned int
+#define UINT unsigned int 
 #define ULONGINT unsigned long 
 #define UMAXINT unsigned long long 
 
