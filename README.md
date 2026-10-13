@@ -91,8 +91,9 @@ The project includes solution files for Visual Studio (`.sln`, `.vcxproj`) and a
 
 **Option 2: Using CMake (Cross-platform)**
 
+```
 1.  Create a build directory:
-    ```bash
+  ```  bash
 mkdir build
 cd build
     ```
@@ -105,7 +106,7 @@ cmake .. -DCMAKE_TOOLCHAIN_FILE=[path_to_vcpkg]/scripts/buildsystems/vcpkg.cmake
     ```bash
 cmake --build .
     ```
-
+```
 Upon successful compilation, an executable named `ChatServer-Application` (or `ChatServer-Application.exe` on Windows) will be generated.
 
 ## 💡 Usage
@@ -248,15 +249,7 @@ Contributions are welcome! If you'd like to contribute, please follow these step
 
 This project is under **MIT License**.
 
-## 🔗 Important Links
-
-*   No important links (e.g., live demo, user profiles) are available at this time.
-
-## 🙏 Footer
-
---- 
-
-Made with ❤️ by SilentDevC
+Made by SilentDevC
 
 Project: [Messaging-App](https://github.com/SilentDevC/Messaging-App)
 
