@@ -246,7 +246,7 @@ Contributions are welcome! If you'd like to contribute, please follow these step
 
 ## ⚖️ License
 
-This project is currently **not licensed**.
+This project is under **MIT License**.
 
 ## 🔗 Important Links
 
