@@ -19,8 +19,6 @@ A messaging application project leveraging the power of C++ Boost Libraries, inc
 *   [📖 API Reference](#-api-reference)
 *   [🤝 Contributing](#-contributing)
 *   [⚖️ License](#%EF%B8%8F-license)
-*   [🔗 Important Links](#-important-links)
-*   [🙏 Footer](#-footer)
 
 ## 🌟 Features
 
@@ -66,7 +64,7 @@ Before you begin, ensure you have the following installed:
 
 *   **C++ Compiler**: A C++17 compatible compiler (e.g., MSVC, GCC, Clang).
 *   **Vcpkg** (recommended package manager): Follow the official [Vcpkg installation guide](https://vcpkg.io/en/docs/getting-started/installing.html).
-*   **MySQL Server**: A running MySQL server instance. The application is configured to connect to `localhost:3306` with username `root` and password `admin` by default. You might need to adjust these credentials or set up a local MySQL instance accordingly.
+*   **MySQL Server**: A running MySQL server instance. The application is configured to connect to `localhost:3306` with username `root` and password `admin` by default. You might need to adjust these credentials or set up a local MySQL instance accordingly.This is a local Database which is why the credentials are hardcoded though the configuration will be changed in the future.
 
 ### Dependencies
 
