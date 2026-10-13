@@ -64,7 +64,7 @@ Before you begin, ensure you have the following installed:
 
 *   **C++ Compiler**: A C++17 compatible compiler (e.g., MSVC, GCC, Clang).
 *   **Vcpkg** (recommended package manager): Follow the official [Vcpkg installation guide](https://vcpkg.io/en/docs/getting-started/installing.html).
-*   **MySQL Server**: A running MySQL server instance. The application is configured to connect to `localhost:3306` with username `root` and password `admin` by default. You might need to adjust these credentials or set up a local MySQL instance accordingly.This is a local Database which is why the credentials are hardcoded though the configuration will be changed in the future.
+*   **MySQL Server**: A running MySQL instance. For local development, the app connects to localhost:3306 with username root and password admin. These credentials are currently hardcoded, and moving them to environment variables or a config file is planned.
 
 ### Dependencies
 
